@@ -2,6 +2,7 @@ import json
 from utils.mcp_tools_helper import safe_get_prompt
 from utils.config import get_ollama_client, OLLAMA_MODEL
 from workflows.workflows import WORKFLOWS, list_workflows
+from tasks.tasks import task_get_document_info, task_retrieve_file_content
 
 def extract_prompt_text(messages):
     texts = []
@@ -134,3 +135,18 @@ async def show_tools(client):
                 print(f"- {tool.name}: {tool.description}")
     except Exception as e:
         print("Could not retrieve prompts:", e)    
+
+async def wf_get_document_flow(client, repository_name: str, filename: str):
+    document_info = await task_get_document_info(client, repository_name, filename)
+    if document_info:
+        language = document_info["language"]
+        source_code = await task_retrieve_file_content(client, repository_name, filename)
+        if source_code:
+            # Combine document_info and filecontent
+            result = dict(document_info)
+            result["filecontent"] = source_code
+            print("Agent -> Document Info with File Content:")
+            print(json.dumps(result, indent=2))
+            return result
+    print("Agent -> Could not retrieve document info or file content.")
+    return None    

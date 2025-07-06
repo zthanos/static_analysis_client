@@ -49,7 +49,7 @@ def parse_all_json(response_list):
             results.append(None)
     return results
 
-async def safe_call_tool(client, tool_name, arguments=None, timeout=None, progress_handler=None):
+async def safe_call_tool_text(client, tool_name, arguments=None, timeout=None, progress_handler=None):
     """
     Calls a tool on the server, handling ToolError and RuntimeError.
     Returns (data, error): data is the parsed response, error is an error message or None.
@@ -61,12 +61,33 @@ async def safe_call_tool(client, tool_name, arguments=None, timeout=None, progre
             timeout=timeout,
             progress_handler=progress_handler
         )
-        data = parse_first_json(response)
-        logger.info(f"Tool call '{tool_name}' succeeded.")
-        return data, None
+        return response, None
     except Exception as e:
         logger.error(f"Tool call '{tool_name}' failed: {e}")
         return None, str(e)
+
+async def safe_call_tool_json(client, tool_name, arguments=None, timeout=None, progress_handler=None):
+    """
+    Calls a tool on the server, handling ToolError and RuntimeError.
+    Returns (data, error): data is the parsed response, error is an error message or None.
+    """
+    try:
+        response = await client.call_tool(
+            tool_name,
+            arguments,
+            timeout=timeout,
+            progress_handler=progress_handler
+        )
+        try:
+            data = parse_first_json(response[0].text) 
+        except Exception as json_ex:
+            logger.error(f"Error serializing json {json_ex}")
+            data = response
+        logger.info(f"Tool call '{tool_name}' succeeded.\n{response}")
+        return data, None
+    except Exception as e:
+        logger.error(f"Tool call '{tool_name}' failed: {e}")
+        return None, str(e)        
 
 
 async def safe_get_prompt(client, name, arguments=None):
