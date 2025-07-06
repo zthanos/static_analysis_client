@@ -1,5 +1,5 @@
 import json
-from helpers.logger import get_logger
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -66,4 +66,23 @@ async def safe_call_tool(client, tool_name, arguments=None, timeout=None, progre
         return data, None
     except Exception as e:
         logger.error(f"Tool call '{tool_name}' failed: {e}")
+        return None, str(e)
+
+
+async def safe_get_prompt(client, name, arguments=None):
+    """
+    Calls a tool on the server, handling ToolError and RuntimeError.
+    Returns (data, error): data is the parsed response, error is an error message or None.
+    """
+    logger.info(f"Getting prompt {name}")
+    try:
+        response = await client.get_prompt(
+            name,
+            arguments
+        )
+        logger.info(f"Response: {response}")
+        # data = parse_first_json(response)
+        return response, None
+    except Exception as e:
+        logger.error(f"Tool call '{name}' failed: {e}")
         return None, str(e)

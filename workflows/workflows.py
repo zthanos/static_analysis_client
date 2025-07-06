@@ -7,7 +7,7 @@ from tasks.tasks import (
     task_retrieve_file_content,
     task_get_language_specific_prompt
 )
-from helpers.logger import get_logger
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -37,6 +37,27 @@ async def wf_get_document_flow(client: FastMCPClient, repository_name: str, file
         source_code = await task_retrieve_file_content(client, repository_name, filename)
         if source_code:
             await task_get_language_specific_prompt(client=client, language=language, source_code=source_code, repository_name=repository_name, filename=filename)
+
+WORKFLOWS = [
+    {
+        "name": "Fetch and Classify Repository",
+        "function": workflow_fetch_and_classify_repository,
+        "params": ["repo_url"],
+        "description": "Fetch a repository and classify it."
+    },
+    {
+        "name": "List Files in Repository",
+        "function": workflow_fetch_classify_and_list_files,
+        "params": ["repo_url"],
+        "description": "List all files in a repository."
+    },
+    # Add more workflows here
+]
+
+def list_workflows():
+    print("Available workflows:")
+    for idx, wf in enumerate(WORKFLOWS, 1):
+        print(f"{idx}. {wf['name']} - {wf['description']}")
 
 
             # task_get_language_specific_prompt

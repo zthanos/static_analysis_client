@@ -1,7 +1,7 @@
 from fastmcp import Client as FastMCPClient
 import json
-from helpers.mcp_tools_helper import safe_call_tool
-from helpers.logger import get_logger
+from utils.mcp_tools_helper import safe_call_tool
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
