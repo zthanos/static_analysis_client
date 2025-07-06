@@ -115,7 +115,7 @@ async def run_workflow_menu(client):
     workflow = WORKFLOWS[choice]
     params = prompt_for_parameters(workflow["params"])
     result = await workflow["function"](client, **params)
-    print("Workflow result:", result)            
+
 
 
 def prompt_for_parameters(params):

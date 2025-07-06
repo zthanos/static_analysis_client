@@ -5,9 +5,13 @@ from tasks.tasks import (
     task_processed_repository,
     task_get_document_info,
     task_retrieve_file_content,
-    task_get_language_specific_prompt
+    task_get_language_specific_prompt,
+    task_extract_flow_with_prompt
 )
 from utils.logger import get_logger
+from utils.mcp_utils import pretty_print_json
+from utils.mcp_tools_helper import get_first_text
+
 import json
 
 logger = get_logger(__name__)
@@ -42,21 +46,75 @@ async def wf_get_document_flow(client: FastMCPClient, repository_name: str, file
 async def workflow_get_document_information(client: FastMCPClient, repo_name: str, filename: str):
     try:
         async with client:
-            await client.ping()    
+            await client.ping()
+
             document_info = await task_get_document_info(client=client, repository=repo_name, filename=filename)
             filecontent = await task_retrieve_file_content(client=client, repository_name=repo_name, filename=filename)
-            if document_info and filecontent:
-                result = dict(document_info)
-                result['filecontent'] = filecontent
-                print("Agent -> Document Info with File Content:")
-                print(json.dumps(result, indent=2))
-                return result
-            else:
-                print("Agent -> Could not retrieve document info or file content.")
+
+            if document_info is None or filecontent is None:
+                logger.warning("Agent -> Could not retrieve document info or file content.")
                 return None
+
+            # Σύνθεση του JSON αποτελέσματος
+            file_text = getattr(filecontent[0], "text", None) if isinstance(filecontent, list) and filecontent else str(filecontent)
+
+            result = dict(document_info)
+            result["filecontent"] = file_text
+
+            print("Agent -> Document Info:")
+            print(json.dumps({k: v for k, v in result.items() if k != "filecontent"}, indent=2))
+
+            print("\nFile Content:\n")
+            print(result["filecontent"])  # Εδώ οι αλλαγές γραμμής αποδίδονται οπτικά
+            return result
+
     except Exception as e:
-        print("Could not run workflow:", e)
+        logger.error(f"Could not run workflow: {e}")
         return None
+
+
+async def workflow_get_document_flow(client: FastMCPClient, repo_name: str, filename: str):
+    try:
+        async with client:
+            await client.ping()
+
+            document_info = await task_get_document_info(client=client, repository=repo_name, filename=filename)
+            if not document_info:
+                logger.error("Could not retrieve document info.")
+                return None
+
+            source_code = await task_retrieve_file_content(client=client, repository_name=repo_name, filename=filename)
+            if not source_code:
+                logger.error("Could not retrieve source code.")
+                return None
+
+            language = dict(document_info).get("language")
+            if not language:
+                logger.error("Language not detected in document info.")
+                return None
+
+            prompts = await task_get_language_specific_prompt(
+                client=client,
+                language=language,
+                source_code=str(get_first_text(source_code)),
+                repository_name=repo_name,
+                filename=filename
+            )
+
+            json_data = await task_extract_flow_with_prompt(
+                client=client,
+                system_prompt=str(prompts.get("system_prompt")),
+                llm_prompt=str(prompts.get("llm_prompt"))
+            )
+
+            print(json_data)
+            return json_data
+    except Exception as e:
+        logger.error(f"Could not run workflow: {e}")
+        return None
+
+
+        
 
 WORKFLOWS = [
     {
@@ -70,7 +128,13 @@ WORKFLOWS = [
         "function": workflow_get_document_information,
         "params": ["repo_name", "filename"],
         "description": "Get Documnet Information."
-    }
+    },
+    {
+        "name": "Extract Document Flow",
+        "function": workflow_get_document_flow,
+        "params": ["repo_name", "filename"],
+        "description": "Extracts the execution flow of a program, starting from its primary entry point, and returns it in a structured JSON format."
+    }    
     # Add more workflows here
 ]
 

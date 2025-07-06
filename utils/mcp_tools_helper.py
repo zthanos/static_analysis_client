@@ -3,56 +3,42 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 def get_first_text(response_list):
-    """
-    Returns the .text attribute of the first response object.
-    """
     if not response_list:
         return None
     return getattr(response_list[0], "text", None)
 
+
 def get_all_texts(response_list):
-    """
-    Returns a list of .text attributes from all response objects.
-    """
-    return [getattr(item, "text", None) for item in response_list]
+    return [getattr(item, "text", None) for item in response_list or []]
+
 
 def has_error(response_obj):
     return getattr(response_obj, "error", None)
 
-def parse_first_json(response_list):
-    """
-    Parses the .text attribute of the first response object as JSON.
-    Returns the parsed object, or None if parsing fails.
-    """
-    text = get_first_text(response_list)
+
+def parse_json_safe(text):
     if text is None:
         return None
     try:
         return json.loads(text)
-    except Exception:
+    except Exception as ex:
+        logger.error(f"JSON parsing failed: {ex}")
         return None
 
-def parse_all_json(response_list):
-    """
-    Parses all .text attributes as JSON.
-    Returns a list of parsed objects (or None for failed parses).
-    """
-    results = []
-    for text in get_all_texts(response_list):
-        try:
-            if text is not None:
-                results.append(json.loads(text))
-            else:
-                results.append(None)
-        except Exception:
-            results.append(None)
-    return results
 
-async def safe_call_tool_text(client, tool_name, arguments=None, timeout=None, progress_handler=None):
+def parse_first_json(response_list):
+    return parse_json_safe(get_first_text(response_list))
+
+
+def parse_all_json(response_list):
+    return [parse_json_safe(text) for text in get_all_texts(response_list)]
+
+
+async def safe_call_tool(client, tool_name, arguments=None, timeout=None, progress_handler=None, parse_json=False):
     """
-    Calls a tool on the server, handling ToolError and RuntimeError.
-    Returns (data, error): data is the parsed response, error is an error message or None.
+    Generic safe tool caller with optional JSON parsing.
     """
     try:
         response = await client.call_tool(
@@ -61,49 +47,31 @@ async def safe_call_tool_text(client, tool_name, arguments=None, timeout=None, p
             timeout=timeout,
             progress_handler=progress_handler
         )
-        return response, None
+        logger.info(f"Tool call '{tool_name}' succeeded.")
+        data = parse_first_json(response) if parse_json else response
+        return data, None
     except Exception as e:
         logger.error(f"Tool call '{tool_name}' failed: {e}")
         return None, str(e)
 
+
+async def safe_call_tool_text(client, tool_name, arguments=None, timeout=None, progress_handler=None):
+    return await safe_call_tool(client, tool_name, arguments, timeout, progress_handler, parse_json=False)
+
+
 async def safe_call_tool_json(client, tool_name, arguments=None, timeout=None, progress_handler=None):
-    """
-    Calls a tool on the server, handling ToolError and RuntimeError.
-    Returns (data, error): data is the parsed response, error is an error message or None.
-    """
-    try:
-        response = await client.call_tool(
-            tool_name,
-            arguments,
-            timeout=timeout,
-            progress_handler=progress_handler
-        )
-        try:
-            data = parse_first_json(response[0].text) 
-        except Exception as json_ex:
-            logger.error(f"Error serializing json {json_ex}")
-            data = response
-        logger.info(f"Tool call '{tool_name}' succeeded.\n{response}")
-        return data, None
-    except Exception as e:
-        logger.error(f"Tool call '{tool_name}' failed: {e}")
-        return None, str(e)        
+    return await safe_call_tool(client, tool_name, arguments, timeout, progress_handler, parse_json=True)
 
 
 async def safe_get_prompt(client, name, arguments=None):
     """
-    Calls a tool on the server, handling ToolError and RuntimeError.
-    Returns (data, error): data is the parsed response, error is an error message or None.
+    Calls a prompt, logs the process, returns (data, error).
     """
     logger.info(f"Getting prompt {name}")
     try:
-        response = await client.get_prompt(
-            name,
-            arguments
-        )
-        logger.info(f"Response: {response}")
-        # data = parse_first_json(response)
+        response = await client.get_prompt(name, arguments)
+        logger.info(f"Prompt '{name}' response: {response}")
         return response, None
     except Exception as e:
-        logger.error(f"Tool call '{name}' failed: {e}")
+        logger.error(f"Prompt call '{name}' failed: {e}")
         return None, str(e)
