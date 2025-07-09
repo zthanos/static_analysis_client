@@ -2,7 +2,7 @@ from typing import Dict
 from math import log
 from fastmcp import Client as FastMCPClient
 import json
-from utils.mcp_tools_helper import safe_call_tool_text, safe_call_tool_json
+from utils.mcp_tools_helper import safe_call_tool_text, safe_call_tool_json, get_first_text
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -16,7 +16,7 @@ async def task_fetch_repository(client: FastMCPClient, repo_url: str):
     if error:
         logger.error(f"Error: {error}")
         return None
-    return data
+    return get_first_text(data)
 
 
 async def task_processed_repository(client: FastMCPClient, repository_name: str):
@@ -183,12 +183,11 @@ async def task_extract_flow_with_prompt(
         logger.error(f"Tool call error: {error}")
         return {}
 
-    if not data or "system_prompt" not in data or "llm_prompt" not in data:
+    if not data or not isinstance(data, dict):
         logger.error("Invalid response structure.")
         return {}
 
-    logger.debug(f"System Prompt: {data['system_prompt'][:200]}...")  # κόβεις για ασφάλεια μεγέθους
-    logger.debug(f"LLM Prompt: {data['llm_prompt'][:200]}...")
+    logger.debug(f"Data: {str(data)[:200]}...")  # κόβεις για ασφάλεια μεγέθους
 
     return data
 

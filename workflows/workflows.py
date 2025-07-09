@@ -11,19 +11,27 @@ from tasks.tasks import (
 from utils.logger import get_logger
 from utils.mcp_utils import pretty_print_json
 from utils.mcp_tools_helper import get_first_text
+from utils.prompts_utils import (
+    print_agent,
+    print_menu,
+    print_llm_response
+)
 
 import json
 
 logger = get_logger(__name__)
 
 async def workflow_fetch_and_classify_repository(client, repo_url):
-    logger.info("Starting workflow: fetch and classify repository")
-    repo_name = await task_fetch_repository(client, repo_url)
-    if not repo_name:
-        logger.error("Failed to fetch repository.")
-        return None
-    classification = await task_classify_repository(client, repo_name)
-    return repo_name, classification
+    async with client:
+        await client.ping()    
+        logger.info("Starting workflow: fetch and classify repository")
+        repo_name = await task_fetch_repository(client, repo_url)
+        print(repo_name)
+        if not repo_name:
+            logger.error("Failed to fetch repository.")
+            return None
+        classification = await task_classify_repository(client, repo_name)
+        return repo_name, classification
 
 async def workflow_fetch_classify_and_list_files(client, repo_url):
     logger.info("Starting workflow: fetch, classify, and list files")
@@ -61,10 +69,10 @@ async def workflow_get_document_information(client: FastMCPClient, repo_name: st
             result = dict(document_info)
             result["filecontent"] = file_text
 
-            print("Agent -> Document Info:")
-            print(json.dumps({k: v for k, v in result.items() if k != "filecontent"}, indent=2))
+            print_agent("Document Info:")
+            print_llm_response(json.dumps({k: v for k, v in result.items() if k != "filecontent"}, indent=2))
 
-            print("\nFile Content:\n")
+            print_llm_response("\nFile Content:\n")
             print(result["filecontent"])  # Εδώ οι αλλαγές γραμμής αποδίδονται οπτικά
             return result
 
@@ -107,7 +115,7 @@ async def workflow_get_document_flow(client: FastMCPClient, repo_name: str, file
                 llm_prompt=str(prompts.get("llm_prompt"))
             )
 
-            print(json_data)
+            pretty_print_json(json_data)
             return json_data
     except Exception as e:
         logger.error(f"Could not run workflow: {e}")
@@ -139,9 +147,9 @@ WORKFLOWS = [
 ]
 
 def list_workflows():
-    print("Available workflows:")
+    print_menu("Available workflows:")
     for idx, wf in enumerate(WORKFLOWS, 1):
-        print(f"{idx}. {wf['name']} - {wf['description']}")
+        print_menu(f"{idx}. {wf['name']} - {wf['description']}")
 
 
             # task_get_language_specific_prompt

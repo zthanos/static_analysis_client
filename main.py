@@ -5,7 +5,7 @@ from utils.config import get_fastmcp_client, OLLAMA_MODEL, get_ollama_client
 
 from utils.mcp_tools_helper import safe_get_prompt
 from menu import display_menu, prompts_menu, prompt_argument_input, prompt_action_submenu, extract_prompt_text
-
+from utils.prompts_utils import print_agent, input_prompt
 
 
 def send_message_to_llm(ollama_client, prompt):
@@ -24,20 +24,20 @@ async def user_input_handler(user_input, client):
     if user_input.lower() == "menu":
         await display_menu(client)
     elif user_input.lower() == "quit":
-        print("Agent -> Exiting.")
+        print_agent("Exiting.")
         exit(0)
     else:
         llm_response = send_message_to_llm(client, user_input)
-        print(f"Agent -> {llm_response}")
+        print_agent(f"{llm_response}")
 
 async def main():
-    print("Agent -> Welcome to the Static Analysis Client!")
-    print("\t Type menu for specific actions, or Quit to exit. ")
-    print("\t What can I do for you today?")
+    print_agent("Agent -> Welcome to the Static Analysis Client!")
+    print_agent("\t Type menu for specific actions, or Quit to exit. ")
+    print_agent("\t What can I do for you today?")
     # logger.info("Starting client!")
     client = get_fastmcp_client()
     while True:
-        user_input = input("User -> ").strip()
+        user_input = input_prompt("", "User").strip()
         if not user_input:
             continue
         await user_input_handler(user_input, client)
