@@ -75,3 +75,5 @@ async def safe_get_prompt(client, name, arguments=None):
     except Exception as e:
         logger.error(f"Prompt call '{name}' failed: {e}")
         return None, str(e)
+
+

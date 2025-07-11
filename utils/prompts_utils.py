@@ -10,8 +10,11 @@ MAGENTA = "\033[95m"
 CYAN = "\033[96m"
 RESET = "\033[0m"
 
-def print_agent(message: str):
-    print(f"{GREEN}[Agent]{RESET} {message}")
+def print_agent(message: str, chunk = False):
+    if chunk:
+        print(f"{message}", end='', flush=True)
+    else :
+        print(f"{GREEN}[Agent]{RESET} {message}")
 
 def print_user(message: str):
     print(f"{BLUE}[User]{RESET} {message}")

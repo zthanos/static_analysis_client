@@ -1,156 +1,149 @@
 from fastmcp import Client as FastMCPClient
-from tasks.tasks import (
-    task_fetch_repository,
-    task_classify_repository,
-    task_processed_repository,
-    task_get_document_info,
-    task_retrieve_file_content,
-    task_get_language_specific_prompt,
-    task_extract_flow_with_prompt
-)
 from utils.logger import get_logger
-from utils.mcp_utils import pretty_print_json
-from utils.mcp_tools_helper import get_first_text
-from utils.prompts_utils import (
-    print_agent,
-    print_menu,
-    print_llm_response
+from utils.mcp_tools_helper import (
+    safe_call_tool_json,
+    safe_call_tool_text,
+    get_first_text,
 )
-
+from utils.mcp_utils import pretty_print_json
+from utils.prompts_utils import print_agent, print_llm_response
+from utils.prompts_utils import print_menu
 import json
 
 logger = get_logger(__name__)
 
+
 async def workflow_fetch_and_classify_repository(client, repo_url):
+    """
+    Fetches a repository from a given URL and classifies it.
+    Returns (repository_name, classification).
+    """
     async with client:
-        await client.ping()    
+        await client.ping()
         logger.info("Starting workflow: fetch and classify repository")
-        repo_name = await task_fetch_repository(client, repo_url)
-        print(repo_name)
-        if not repo_name:
-            logger.error("Failed to fetch repository.")
+
+        repo_name, error = await safe_call_tool_text(client, "fetch_repository", {"repo_url": repo_url})
+        if error or not repo_name:
+            logger.error(f"Failed to fetch repository: {error}")
             return None
-        classification = await task_classify_repository(client, repo_name)
+
+        classification, error = await safe_call_tool_text(client, "classify_repository", {"repository_name": repo_name})
+        if error:
+            logger.error(f"Failed to classify repository: {error}")
+            return None
+
+        print_agent(f"Repository '{repo_name}' classified as: {classification}")
         return repo_name, classification
 
-async def workflow_fetch_classify_and_list_files(client, repo_url):
-    logger.info("Starting workflow: fetch, classify, and list files")
-    repo_name = await task_fetch_repository(client, repo_url)
-    if not repo_name:
-        logger.error("Failed to fetch repository.")
-        return None
-    classification = await task_classify_repository(client, repo_name)
-    files = await task_processed_repository(client, repo_name)
-    return repo_name, classification, files
-
-async def wf_get_document_flow(client: FastMCPClient, repository_name: str, filename: str):
-    document_info = await task_get_document_info(client, repository_name, filename)
-    if document_info:
-        language = document_info["language"]
-        source_code = await task_retrieve_file_content(client, repository_name, filename)
-        if source_code:
-            await task_get_language_specific_prompt(client=client, language=language, source_code=source_code, repository_name=repository_name, filename=filename)
 
 async def workflow_get_document_information(client: FastMCPClient, repo_name: str, filename: str):
-    try:
-        async with client:
-            await client.ping()
+    """
+    Retrieves document metadata and file content.
+    Returns a combined dictionary with document info and content.
+    """
+    async with client:
+        await client.ping()
 
-            document_info = await task_get_document_info(client=client, repository=repo_name, filename=filename)
-            filecontent = await task_retrieve_file_content(client=client, repository_name=repo_name, filename=filename)
+        doc_info, error = await safe_call_tool_json(client, "get_document_info", {"repository": repo_name, "filename": filename})
+        if error or not doc_info:
+            logger.error(f"Failed to get document info: {error}")
+            return None
 
-            if document_info is None or filecontent is None:
-                logger.warning("Agent -> Could not retrieve document info or file content.")
-                return None
+        filecontent, error = await safe_call_tool_text(client, "retrieve_file_content", {"repository_name": repo_name, "filename": filename})
+        if error or not filecontent:
+            logger.error(f"Failed to get file content: {error}")
+            return None
 
-            # Σύνθεση του JSON αποτελέσματος
-            file_text = getattr(filecontent[0], "text", None) if isinstance(filecontent, list) and filecontent else str(filecontent)
+        result = dict(doc_info)
+        result["filecontent"] = get_first_text(filecontent)
 
-            result = dict(document_info)
-            result["filecontent"] = file_text
+        print_agent("Document Info:")
+        print_llm_response(json.dumps({k: v for k, v in result.items() if k != "filecontent"}, indent=2))
 
-            print_agent("Document Info:")
-            print_llm_response(json.dumps({k: v for k, v in result.items() if k != "filecontent"}, indent=2))
-
-            print_llm_response("\nFile Content:\n")
-            print(result["filecontent"])  # Εδώ οι αλλαγές γραμμής αποδίδονται οπτικά
-            return result
-
-    except Exception as e:
-        logger.error(f"Could not run workflow: {e}")
-        return None
+        print_llm_response("\nFile Content:\n")
+        print(result["filecontent"])
+        return result
 
 
 async def workflow_get_document_flow(client: FastMCPClient, repo_name: str, filename: str):
-    try:
-        async with client:
-            await client.ping()
+    """
+    Extracts execution flow from document using language-specific prompt.
+    Returns structured JSON result.
+    """
+    async with client:
+        await client.ping()
 
-            document_info = await task_get_document_info(client=client, repository=repo_name, filename=filename)
-            if not document_info:
-                logger.error("Could not retrieve document info.")
-                return None
+        doc_info, error = await safe_call_tool_json(client, "get_document_info", {"repository": repo_name, "filename": filename})
+        if error or not doc_info:
+            logger.error(f"Failed to get document info: {error}")
+            return None
 
-            source_code = await task_retrieve_file_content(client=client, repository_name=repo_name, filename=filename)
-            if not source_code:
-                logger.error("Could not retrieve source code.")
-                return None
+        source_code, error = await safe_call_tool_text(client, "retrieve_file_content", {"repository_name": repo_name, "filename": filename})
+        if error or not source_code:
+            logger.error(f"Failed to get source code: {error}")
+            return None
 
-            language = dict(document_info).get("language")
-            if not language:
-                logger.error("Language not detected in document info.")
-                return None
+        language = doc_info.get("language")
+        if not language:
+            logger.error("Language not detected in document info.")
+            return None
 
-            prompts = await task_get_language_specific_prompt(
-                client=client,
-                language=language,
-                source_code=str(get_first_text(source_code)),
-                repository_name=repo_name,
-                filename=filename
-            )
+        prompts, error = await safe_call_tool_json(
+            client,
+            "get_language_specific_prompt",
+            {
+                "language": language,
+                "source_code": str(get_first_text(source_code)),
+                "repository_name": repo_name,
+                "filename": filename,
+            }
+        )
+        if error or not prompts:
+            logger.error(f"Failed to get language-specific prompt: {error}")
+            return None
 
-            json_data = await task_extract_flow_with_prompt(
-                client=client,
-                system_prompt=str(prompts.get("system_prompt")),
-                llm_prompt=str(prompts.get("llm_prompt"))
-            )
+        json_data, error = await safe_call_tool_json(
+            client,
+            "extract_flow_with_specific_prompt",
+            {
+                "system_prompt": str(prompts.get("system_prompt")),
+                "llm_prompt": str(prompts.get("llm_prompt")),
+            }
+        )
+        if error or not json_data:
+            logger.error(f"Failed to extract flow: {error}")
+            return None
 
-            pretty_print_json(json_data)
-            return json_data
-    except Exception as e:
-        logger.error(f"Could not run workflow: {e}")
-        return None
+        pretty_print_json(json_data)
+        return json_data
 
-
-        
 
 WORKFLOWS = [
     {
         "name": "Fetch and Classify Repository",
         "function": workflow_fetch_and_classify_repository,
         "params": ["repo_url"],
-        "description": "Fetch a repository and classify it."
+        "description": "Fetch a repository and classify it.",
     },
     {
         "name": "Get Document Info",
         "function": workflow_get_document_information,
         "params": ["repo_name", "filename"],
-        "description": "Get Documnet Information."
+        "description": "Get Document Information.",
     },
     {
         "name": "Extract Document Flow",
         "function": workflow_get_document_flow,
         "params": ["repo_name", "filename"],
-        "description": "Extracts the execution flow of a program, starting from its primary entry point, and returns it in a structured JSON format."
-    }    
-    # Add more workflows here
+        "description": "Extracts the execution flow of a program, starting from its primary entry point, and returns it in structured JSON.",
+    },
 ]
 
+
 def list_workflows():
+    """
+    Lists all available workflows with index, name, and description.
+    """
     print_menu("Available workflows:")
     for idx, wf in enumerate(WORKFLOWS, 1):
         print_menu(f"{idx}. {wf['name']} - {wf['description']}")
-
-
-            # task_get_language_specific_prompt
-

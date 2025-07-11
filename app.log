@@ -1,67 +1,39 @@
-[2025-07-08 15:48:28,609] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 15:48:28,610] INFO tasks.tasks: Fetching repository
-[2025-07-08 15:48:29,268] INFO utils.mcp_tools_helper: Tool call 'fetch_repository' succeeded.
-[2025-07-08 15:48:29,268] INFO tasks.tasks: classify_repository
-[2025-07-08 15:48:29,351] ERROR utils.mcp_tools_helper: Tool call 'classify_repository' failed: Error calling tool 'classify_repository': 1 validation error for call[classify_repository]
-repository_name
-  Input should be a valid string [type=string_type, input_value=[{'type': 'text', 'text': 'DOGECICS'}], input_type=list]
+[2025-07-11 12:03:30,459] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:03:37,940] ERROR __main__: Error while communicating with LLM: 1 validation error for Message
+content
+  Input should be a valid string [type=string_type, input_value={'filename': 'DOGEDMAP', ...bases"]\n    }\n  ]\n}'}, input_type=dict]
     For further information visit https://errors.pydantic.dev/2.11/v/string_type
-[2025-07-08 15:48:29,351] ERROR tasks.tasks: Error: Error calling tool 'classify_repository': 1 validation error for call[classify_repository]
-repository_name
-  Input should be a valid string [type=string_type, input_value=[{'type': 'text', 'text': 'DOGECICS'}], input_type=list]
-    For further information visit https://errors.pydantic.dev/2.11/v/string_type
-[2025-07-08 15:50:13,319] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 15:50:13,319] INFO tasks.tasks: Fetching repository
-[2025-07-08 15:50:13,683] INFO utils.mcp_tools_helper: Tool call 'fetch_repository' succeeded.
-[2025-07-08 15:50:13,683] INFO tasks.tasks: classify_repository
-[2025-07-08 15:50:13,727] ERROR utils.mcp_tools_helper: Tool call 'classify_repository' failed: Error calling tool 'classify_repository': 1 validation error for call[classify_repository]
-repository_name
-  Input should be a valid string [type=string_type, input_value=[{'type': 'text', 'text': 'DOGECICS'}], input_type=list]
-    For further information visit https://errors.pydantic.dev/2.11/v/string_type
-[2025-07-08 15:50:13,727] ERROR tasks.tasks: Error: Error calling tool 'classify_repository': 1 validation error for call[classify_repository]
-repository_name
-  Input should be a valid string [type=string_type, input_value=[{'type': 'text', 'text': 'DOGECICS'}], input_type=list]
-    For further information visit https://errors.pydantic.dev/2.11/v/string_type
-[2025-07-08 15:51:53,856] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 15:51:53,856] INFO tasks.tasks: Fetching repository
-[2025-07-08 15:51:54,194] INFO utils.mcp_tools_helper: Tool call 'fetch_repository' succeeded.
-[2025-07-08 15:51:54,195] INFO tasks.tasks: classify_repository
-[2025-07-08 15:51:54,621] ERROR utils.mcp_tools_helper: Tool call 'classify_repository' failed: Error calling tool 'classify_repository': {code: Neo.ClientError.Statement.ParameterMissing} {message: Expected parameter(s): analysis}
-[2025-07-08 15:51:54,622] ERROR tasks.tasks: Error: Error calling tool 'classify_repository': {code: Neo.ClientError.Statement.ParameterMissing} {message: Expected parameter(s): analysis}
-[2025-07-08 15:52:19,842] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 15:52:19,842] INFO tasks.tasks: Fetching repository
-[2025-07-08 15:52:20,437] INFO utils.mcp_tools_helper: Tool call 'fetch_repository' succeeded.
-[2025-07-08 15:52:20,437] INFO tasks.tasks: classify_repository
-[2025-07-08 15:52:20,887] ERROR utils.mcp_tools_helper: Tool call 'classify_repository' failed: Error calling tool 'classify_repository': {code: Neo.ClientError.Statement.ParameterMissing} {message: Expected parameter(s): analysis}
-[2025-07-08 15:52:20,887] ERROR tasks.tasks: Error: Error calling tool 'classify_repository': {code: Neo.ClientError.Statement.ParameterMissing} {message: Expected parameter(s): analysis}
-[2025-07-08 15:54:33,012] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 15:54:33,012] INFO tasks.tasks: Fetching repository
-[2025-07-08 15:54:33,150] ERROR utils.mcp_tools_helper: Tool call 'fetch_repository' failed: Error calling tool 'fetch_repository': Command '['git', 'clone', 'classify_repository', 'workspace\\classify_repository']' returned non-zero exit status 128.
-[2025-07-08 15:54:33,150] ERROR tasks.tasks: Error: Error calling tool 'fetch_repository': Command '['git', 'clone', 'classify_repository', 'workspace\\classify_repository']' returned non-zero exit status 128.
-[2025-07-08 15:54:33,151] ERROR workflows.workflows: Failed to fetch repository.
-[2025-07-08 15:55:00,578] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 15:55:00,578] INFO tasks.tasks: Fetching repository
-[2025-07-08 15:55:01,210] INFO utils.mcp_tools_helper: Tool call 'fetch_repository' succeeded.
-[2025-07-08 15:55:01,211] INFO tasks.tasks: classify_repository
-[2025-07-08 15:55:01,630] ERROR utils.mcp_tools_helper: Tool call 'classify_repository' failed: Error calling tool 'classify_repository': {code: Neo.ClientError.Statement.ParameterMissing} {message: Expected parameter(s): analysis}
-[2025-07-08 15:55:01,630] ERROR tasks.tasks: Error: Error calling tool 'classify_repository': {code: Neo.ClientError.Statement.ParameterMissing} {message: Expected parameter(s): analysis}
-[2025-07-08 15:56:25,387] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 15:56:25,387] INFO tasks.tasks: Fetching repository
-[2025-07-08 15:56:25,995] INFO utils.mcp_tools_helper: Tool call 'fetch_repository' succeeded.
-[2025-07-08 15:56:25,995] INFO tasks.tasks: classify_repository
-[2025-07-08 15:56:26,393] ERROR utils.mcp_tools_helper: Tool call 'classify_repository' failed: Error calling tool 'classify_repository': {code: Neo.ClientError.Statement.ParameterMissing} {message: Expected parameter(s): analysis}
-[2025-07-08 15:56:26,393] ERROR tasks.tasks: Error: Error calling tool 'classify_repository': {code: Neo.ClientError.Statement.ParameterMissing} {message: Expected parameter(s): analysis}
-[2025-07-08 15:58:43,462] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 15:58:43,463] INFO tasks.tasks: Fetching repository
-[2025-07-08 15:58:44,132] INFO utils.mcp_tools_helper: Tool call 'fetch_repository' succeeded.
-[2025-07-08 15:58:44,132] INFO tasks.tasks: classify_repository
-[2025-07-08 16:04:44,896] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 16:04:44,897] INFO tasks.tasks: Fetching repository
-[2025-07-08 16:04:45,526] INFO utils.mcp_tools_helper: Tool call 'fetch_repository' succeeded.
-[2025-07-08 16:04:45,526] INFO tasks.tasks: classify_repository
-[2025-07-08 16:13:00,990] INFO workflows.workflows: Starting workflow: fetch and classify repository
-[2025-07-08 16:13:00,990] INFO tasks.tasks: Fetching repository
-[2025-07-08 16:13:01,663] INFO utils.mcp_tools_helper: Tool call 'fetch_repository' succeeded.
-[2025-07-08 16:13:01,663] INFO tasks.tasks: classify_repository
-[2025-07-08 17:36:40,385] INFO utils.mcp_tools_helper: Tool call 'classify_repository' succeeded.
-[2025-07-08 17:36:40,386] INFO tasks.tasks: [TextContent(type='text', text='DOGECICS', annotations=None)]
+[2025-07-11 12:03:38,917] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:06:50,676] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:06:59,139] ERROR __main__: Error while communicating with LLM: dictionary update sequence element #0 has length 1; 2 is required
+[2025-07-11 12:07:00,046] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:07:35,948] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:08:19,931] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:09:19,589] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:10:02,412] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:10:35,858] ERROR __main__: Error while communicating with LLM: dictionary update sequence element #0 has length 1; 2 is required
+[2025-07-11 12:10:37,092] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:10:57,610] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:11:08,269] ERROR __main__: Error while communicating with LLM: dictionary update sequence element #0 has length 1; 2 is required
+[2025-07-11 12:11:09,245] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:11:58,795] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:14:53,677] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:19:18,765] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:19:28,984] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:20:04,044] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:22:33,872] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:35:47,018] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:39:15,988] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:41:27,893] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:48:40,108] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 12:51:35,123] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 13:34:56,574] INFO utils.mcp_tools_helper: Tool call 'summarize_repository_scope' succeeded.
+[2025-07-11 16:29:56,747] INFO __main__: Starting client!
+[2025-07-11 16:42:36,187] INFO __main__: Starting client!
+[2025-07-11 16:43:51,168] INFO utils.mcp_tools_helper: Getting prompt MCP_Server_Language-Aware_Code_Analysis_Prompt
+[2025-07-11 16:43:51,451] INFO utils.mcp_tools_helper: Prompt 'MCP_Server_Language-Aware_Code_Analysis_Prompt' response: meta=None description='Extracts the execution flow and external dependencies of any supported source code.' messages=[PromptMessage(role='user', content=TextContent(type='text', text='\n# MCP Server Language-Aware Code Analysis Prompt\n\n## System Instructions\n\nYou are a language-agnostic static code analyzer operating within the MCP Server.\n\n### Analysis Workflow\n\n1. **Identify Programming Language**\n   - Use the tool `get_document_info` with repository: `DOGECICS`, filename: `DOGEMAIN`\n   - This returns metadata including detected language (e.g., Python, COBOL, CLIST, C)\n\n2. **Retrieve Source Code**\n   - Use `retrieve_file_content` with `DOGECICS` and `DOGEMAIN`\n   - Assign the result to `source_code`\n\n3. **Language-Specific Analysis**\n   - Based on the detected language, invoke `get_language_specific_prompt(language, source_code, filename, repository_name)`\n   - Use the returned prompt template for that language to perform in-depth static analysis\n\n4. **Produce JSON Output**\n   - Output strictly valid JSON as per the language-agnostic schema:\n   \n```json\n{\n  "program_id": "unique program/module identifier",\n  "filename": "DOGEMAIN",\n  "language": "detected language",\n  "main_entry_points": ["entry points list"],\n  "flow_graph": [...],\n  "path_to_critical": [...]\n}\n', annotations=None))]
+[2025-07-11 16:51:15,674] INFO __main__: Starting client!
+[2025-07-11 16:52:46,137] INFO utils.mcp_tools_helper: Getting prompt MCP_Server_Language-Aware_Code_Analysis_Prompt
+[2025-07-11 16:52:46,401] INFO utils.mcp_tools_helper: Prompt 'MCP_Server_Language-Aware_Code_Analysis_Prompt' response: meta=None description='Extracts the execution flow and external dependencies of any supported source code.' messages=[PromptMessage(role='user', content=TextContent(type='text', text='\n# MCP Server Language-Aware Code Analysis Prompt\n\n## System Instructions\n\nYou are a language-agnostic static code analyzer operating within the MCP Server.\n\n### Analysis Workflow\n\n1. **Identify Programming Language**\n   - Use the tool `get_document_info` with repository: `DOGECICS`, filename: `DOGEMAIN`\n   - This returns metadata including detected language (e.g., Python, COBOL, CLIST, C)\n\n2. **Retrieve Source Code**\n   - Use `retrieve_file_content` with `DOGECICS` and `DOGEMAIN`\n   - Assign the result to `source_code`\n\n3. **Language-Specific Analysis**\n   - Based on the detected language, invoke `get_language_specific_prompt(language, source_code, filename, repository_name)`\n   - Use the returned prompt template for that language to perform in-depth static analysis\n\n4. **Produce JSON Output**\n   - Output strictly valid JSON as per the language-agnostic schema:\n   \n```json\n{\n  "program_id": "unique program/module identifier",\n  "filename": "DOGEMAIN",\n  "language": "detected language",\n  "main_entry_points": ["entry points list"],\n  "flow_graph": [...],\n  "path_to_critical": [...]\n}\n', annotations=None))]
+[2025-07-11 17:04:28,191] INFO __main__: Starting client!
+[2025-07-11 17:06:32,663] INFO __main__: Starting client!

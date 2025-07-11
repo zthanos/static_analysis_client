@@ -4,9 +4,12 @@ from fastmcp import Client as FastMCPClient
 import json
 from utils.mcp_tools_helper import safe_call_tool_text, safe_call_tool_json, get_first_text
 from utils.logger import get_logger
+from utils.prompts_utils import print_llm_response
 
 logger = get_logger(__name__)
 
+
+    
 
 async def task_fetch_repository(client: FastMCPClient, repo_url: str):
     logger.info("Fetching repository")
@@ -205,3 +208,18 @@ async def task_get_document_info(client: FastMCPClient, repository: str, filenam
         return None
     logger.debug(data)
     return data
+
+
+
+
+async def task_get_repository_summary(client: FastMCPClient, repository: str):
+    try:
+        async with client:
+            await client.ping()
+            args = {}
+            args["repository_name"] = repository
+            # data = await client.call_tool("summarize_repository_scope", args)
+            data = await safe_call_tool_json(client, "summarize_repository_scope", args)
+            return data[0]
+    except Exception as e:
+        print_llm_response(f"Could not retrieve context:\n{e}")
